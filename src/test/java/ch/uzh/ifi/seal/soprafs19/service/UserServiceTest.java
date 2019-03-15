@@ -14,6 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.util.Date;
+
 /**
  * Test class for the UserResource REST resource.
  *
@@ -32,18 +34,105 @@ public class UserServiceTest {
     @Autowired
     private UserService userService;
 
+
     @Test
     public void createUser() {
+
         Assert.assertNull(userRepository.findByUsername("testUsername"));
 
         User testUser = new User();
         testUser.setName("testName");
         testUser.setUsername("testUsername");
+        testUser.setBirthday(new Date());
+        testUser.setPassword("testPassword");
 
         User createdUser = userService.createUser(testUser);
 
-        Assert.assertNotNull(createdUser.getToken());
-        Assert.assertEquals(createdUser.getStatus(),UserStatus.ONLINE);
-        Assert.assertEquals(createdUser, userRepository.findByToken(createdUser.getToken()));
+        Assert.assertNotNull(createdUser.getId());
+        Assert.assertEquals(createdUser.getName(), userRepository.findById(createdUser.getId().longValue()).getName());
+        Assert.assertEquals(createdUser.getUsername(), userRepository.findById(createdUser.getId().longValue()).getUsername());
+        Assert.assertNotNull(createdUser.getCreationDate());
+        Assert.assertEquals(createdUser.getPassword(), userRepository.findById(createdUser.getId().longValue()).getPassword());
+        Assert.assertNull(createdUser.getToken());
+        Assert.assertEquals(createdUser.getStatus(),UserStatus.OFFLINE);
     }
+
+    @Test
+    public void existsUserByUsername() {
+        String username = "testUsername1";
+
+        Assert.assertFalse(userService.existsUserByUsername(username));
+
+        User testUser = new User();
+        testUser.setName("testName");
+        testUser.setUsername(username);
+        testUser.setBirthday(new Date());
+        testUser.setPassword("testPassword");
+
+        userService.createUser(testUser);
+
+        Assert.assertTrue(userService.existsUserByUsername(username));
+    }
+
+    @Test
+    public void getUserById() {
+        String username = "testUsername2";
+
+        Assert.assertFalse(userService.existsUserByUsername(username));
+
+        User testUser = new User();
+        testUser.setName("testName");
+        testUser.setUsername(username);
+        testUser.setBirthday(new Date());
+        testUser.setPassword("testPassword");
+
+        User createdUser = userService.createUser(testUser);
+
+        Assert.assertEquals(createdUser.getId(), userService.getUserById(createdUser.getId().longValue()).getId());
+    }
+
+    @Test
+    public void getUserByUsername() {
+        String username = "testUsername3";
+
+        Assert.assertFalse(userService.existsUserByUsername(username));
+
+        User testUser = new User();
+        testUser.setName("testName");
+        testUser.setUsername(username);
+        testUser.setBirthday(new Date());
+        testUser.setPassword("testPassword");
+
+        User createdUser = userService.createUser(testUser);
+
+        Assert.assertEquals(createdUser.getUsername(), userRepository.findById(createdUser.getId().longValue()).getUsername());
+    }
+
+    @Test
+    public void updateUser() {
+        String username = "testUsername4";
+
+        Assert.assertFalse(userService.existsUserByUsername(username));
+
+        User testUser = new User();
+        testUser.setName("testName");
+        testUser.setUsername(username);
+        testUser.setBirthday(new Date());
+        testUser.setPassword("testPassword");
+
+        User createdUser = userService.createUser(testUser);
+
+        Assert.assertEquals(createdUser.getUsername(), userRepository.findById(createdUser.getId().longValue()).getUsername());
+
+        User updatedRequestedUser = new User();
+        updatedRequestedUser.setUsername(username+"Updated");
+        updatedRequestedUser.setBirthday(new Date());
+
+        userService.updateUser(createdUser.getId(), updatedRequestedUser);
+
+        User updatedUser = this.userService.getUserById(createdUser.getId());
+
+        Assert.assertEquals(updatedRequestedUser.getUsername(), updatedUser.getUsername());
+    }
+
 }

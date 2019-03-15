@@ -3,6 +3,7 @@ package ch.uzh.ifi.seal.soprafs19.entity;
 import ch.uzh.ifi.seal.soprafs19.constant.UserStatus;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,18 +19,43 @@ public class User implements Serializable {
 	@Id
 	@GeneratedValue
 	private Long id;
-	
-	@Column(nullable = false) 
+
+	@Column(nullable = false)
 	private String name;
 	
 	@Column(nullable = false, unique = true) 
 	private String username;
-	
-	@Column(nullable = false, unique = true) 
+
+	@Column(nullable = false)
+	private String password;
+
+	@Column(nullable = true, unique = true)
 	private String token;
 
 	@Column(nullable = false)
 	private UserStatus status;
+
+	@Column(nullable = false)
+	private Date birthday;
+
+	@Column(nullable = false)
+	private Date creationDate;
+
+	public Date getBirthday() {
+		return birthday;
+	}
+
+	public void setBirthday(Date birthday) {
+		this.birthday = birthday;
+	}
+
+	public Date getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
 
 	public Long getId() {
 		return id;
@@ -80,4 +106,15 @@ public class User implements Serializable {
 		User user = (User) o;
 		return this.getId().equals(user.getId());
 	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+
 }
+
